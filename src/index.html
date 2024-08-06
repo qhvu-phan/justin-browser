@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Justin Browser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #toolbar {
+            display: flex;
+            background-color: #f1f1f1;
+            padding: 10px;
+        }
+
+        #toolbar input[type="text"] {
+            flex-grow: 1;
+            padding: 5px;
+        }
+
+        #tabs {
+            display: flex;
+            background-color: #ddd;
+            padding: 5px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 10px;
+            cursor: pointer;
+            background-color: #bbb;
+            margin-right: 5px;
+            display: flex;
+            align-items: center;
+            border-radius: 5px;
+        }
+
+        .tab.active {
+            background-color: #888;
+        }
+
+        .tab .tab-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+            /* Adjust this value as needed */
+        }
+
+        .close-btn {
+            margin-left: 10px;
+            color: red;
+            cursor: pointer;
+        }
+
+        #content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #webview-container {
+            flex-grow: 1;
+            position: relative;
+        }
+
+        button:hover {
+            cursor: pointer;
+        }
+
+        webview {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+
+        webview.active {
+            display: inline-flex;
+        }
+
+        #loading-notice {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="toolbar">
+        <button id="back">Back</button>
+        <button id="forward">Forward</button>
+        <input type="text" id="url" placeholder="Enter URL or search query">
+        <button id="go">Search</button>
+        <button id="new-tab">New Tab +</button>
+    </div>
+    <div id="tabs"></div>
+    <div id="content">
+        <div id="webview-container"></div>
+    </div>
+    <div id="loading-notice">Downloading...</div>
+    <script src="renderer.js"></script>
+</body>
+
+</html>
