@@ -33,5 +33,8 @@
     "directories": {
       "buildResources": "build"
     }
+  },
+  "dependencies": {
+    "react-native-webview": "^13.10.5"
   }
 }
