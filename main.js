@@ -15,7 +15,7 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "src/preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
       enableRemoteModule: false,
@@ -23,7 +23,7 @@ function createWindow() {
     },
   });
 
-  mainWindow.loadFile("src/index.html");
+  mainWindow.loadFile(path.join(__dirname, "src/index.html"));
 
   mainWindow.on("closed", function () {
     mainWindow = null;
@@ -50,15 +50,9 @@ function createWindow() {
 
       item.on("done", (event, state) => {
         if (state === "completed") {
-          mainWindow.webContents.send(
-            "download-progress",
-            "Tải xuống hoàn tất"
-          );
+          mainWindow.webContents.send("download-progress", "Tải xuống hoàn tất");
         } else {
-          mainWindow.webContents.send(
-            "download-progress",
-            `Tải xuống bị lỗi: ${state}`
-          );
+          mainWindow.webContents.send("download-progress", `Tải xuống bị lỗi: ${state}`);
         }
       });
     }

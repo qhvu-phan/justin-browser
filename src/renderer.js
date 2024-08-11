@@ -5,10 +5,12 @@ document.getElementById("new-tab").addEventListener("click", () => {
   createTab("https://www.google.com", "New Tab");
 });
 
-document.getElementById("go").addEventListener("click", () => {
-  const query = document.getElementById("url").value;
-  if (query) {
-    navigateTo(query);
+document.getElementById("url").addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    const query = event.target.value;
+    if (query) {
+      navigateTo(query);
+    }
   }
 });
 
@@ -26,23 +28,54 @@ document.getElementById("forward").addEventListener("click", () => {
   }
 });
 
+document.getElementById("reload").addEventListener("click", () => {
+  if (currentTabIndex !== -1) {
+    const webview = tabs[currentTabIndex].webview;
+    webview.reload();
+    showLoadingBar();
+  }
+});
+
 window.electronAPI.receive("create-new-tab", (url) => {
   createTab(url, url);
 });
 
 window.electronAPI.receive("download-progress", (message) => {
-  const loadingNotice = document.getElementById("loading-notice");
-  loadingNotice.textContent = message;
-  loadingNotice.style.display = "block";
-  if (
-    message === "Tải xuống hoàn tất" ||
-    message.startsWith("Tải xuống bị lỗi")
-  ) {
-    setTimeout(() => {
-      loadingNotice.style.display = "none";
-    }, 3000);
+  const downloadProgress = document.getElementById("download-progress");
+  const downloadProgressBar = document.getElementById("download-progress-bar");
+  const downloadProgressText = document.getElementById("download-progress-text");
+
+  if (message.startsWith("Đang tải xuống: ")) {
+    const progress = parseInt(message.replace("Đang tải xuống: ", "").replace("%", ""));
+    downloadProgressBar.style.width = `${progress}%`;
+    downloadProgressText.textContent = `Đang tải xuống ${progress}%`;
+    downloadProgress.style.display = "block";
+  } else {
+    downloadProgressText.textContent = message;
+    if (message === "Tải xuống hoàn tất" || message.startsWith("Tải xuống bị lỗi")) {
+      setTimeout(() => {
+        downloadProgress.style.display = "none";
+        downloadProgressBar.style.width = "0";
+        downloadProgressText.textContent = "";
+      }, 3000);
+    }
   }
 });
+
+function showLoadingBar() {
+  const loadingBar = document.getElementById("loading-bar");
+  loadingBar.style.width = "0%";
+  let width = 0;
+
+  const interval = setInterval(() => {
+    if (width >= 100) {
+      clearInterval(interval);
+    } else {
+      width++;
+      loadingBar.style.width = width + "%";
+    }
+  }, 50);
+}
 
 function createTab(url, title) {
   const tab = document.createElement("div");
@@ -62,23 +95,16 @@ function createTab(url, title) {
   webview.allowpopups = true;
 
   webview.addEventListener("did-start-loading", () => {
-    document.getElementById("loading-notice").textContent = "Đang tải...";
-    document.getElementById("loading-notice").style.display = "block";
+    showLoadingBar();
   });
 
   webview.addEventListener("did-stop-loading", () => {
-    document.getElementById("loading-notice").style.display = "none";
     const currentUrl = webview.getURL();
-    if (currentUrl.startsWith("https://www.google.com/search")) {
-      const urlParams = new URLSearchParams(new URL(currentUrl).search);
-      const query = urlParams.get("q");
-      if (query) {
-        tab.querySelector(".tab-title").textContent = query;
-      }
-    } else {
-      tab.querySelector(".tab-title").textContent = currentUrl;
-    }
+    tab.querySelector(".tab-title").textContent = currentUrl;
     document.getElementById("url").value = currentUrl;
+
+    // Cuộn lên đầu trang
+    webview.executeJavaScript('window.scrollTo(0, 0)');
   });
 
   const tabData = { tab, webview };
@@ -86,6 +112,8 @@ function createTab(url, title) {
 
   document.getElementById("tabs").appendChild(tab);
   document.getElementById("webview-container").appendChild(webview);
+  document.getElementById("webview-container").style.display = "block";
+  document.getElementById("no-tabs-message").classList.add("hidden");
 
   switchTab(tabs.length - 1);
 }
@@ -122,6 +150,8 @@ function closeTab(index) {
 
     if (tabs.length === 0) {
       window.electronAPI.send("check-close-all-tabs");
+      document.getElementById("webview-container").style.display = "none";
+      document.getElementById("no-tabs-message").classList.remove("hidden");
     }
   }
 }
@@ -139,5 +169,5 @@ function navigateTo(query) {
   }
 }
 
-// Mở tab mặc định khi tải trang
-createTab("https://www.google.com", "Google");
+// // Mở tab mặc định khi tải trang
+// createTab("https://www.google.com", "Google");

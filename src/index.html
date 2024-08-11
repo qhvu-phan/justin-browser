@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.min.css">
     <title>Justin Browser</title>
     <style>
         body {
@@ -12,38 +13,42 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
+            font-size: 1rem;
         }
 
         #toolbar {
             display: flex;
             background-color: #f1f1f1;
             padding: 10px;
+            align-items: center;
         }
 
         #toolbar input[type="text"] {
             flex-grow: 1;
             padding: 5px;
+            margin: 0 10px;
+            outline: none;
         }
 
         #tabs {
             display: flex;
-            background-color: #ddd;
-            padding: 5px;
+            background-color: #a3daf3;
             overflow-x: auto;
         }
 
         .tab {
             padding: 10px;
             cursor: pointer;
-            background-color: #bbb;
+            background-color: #a3daf3;
             margin-right: 5px;
             display: flex;
             align-items: center;
-            border-radius: 5px;
+            border-top-left-radius: 5px;
+            border-top-right-radius: 5px;
         }
 
         .tab.active {
-            background-color: #888;
+            background-color: #e9fffc;
         }
 
         .tab .tab-title {
@@ -51,13 +56,19 @@
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100px;
-            /* Adjust this value as needed */
         }
 
         .close-btn {
             margin-left: 10px;
-            color: red;
+            width: 20px;
+            color: gray;
             cursor: pointer;
+            text-align: center;
+        }
+        .close-btn:hover {
+            background-color: #a3daf3;
+            border-radius: 50px;
+            color: #f3f3f3;
         }
 
         #content {
@@ -70,10 +81,6 @@
         #webview-container {
             flex-grow: 1;
             position: relative;
-        }
-
-        button:hover {
-            cursor: pointer;
         }
 
         webview {
@@ -90,30 +97,123 @@
 
         #loading-notice {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            bottom: 20px;
+            right: 20px;
             background: rgba(0, 0, 0, 0.75);
             color: white;
             text-align: center;
             padding: 10px;
             display: none;
             z-index: 1000;
+            border-radius: 5px;
         }
+
+        #loading-bar-container {
+            width: 100%;
+            height: 5px;
+            background-color: #ddd;
+        }
+
+        #loading-bar {
+            height: 100%;
+            background-color: #a3daf3;
+            width: 0;
+            transition: width 0.4s;
+        }
+
+        #download-progress {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #f3f3f3;
+            display: none;
+            border-top: 1px solid #ccc;
+            text-align: center;
+            z-index: 1001;
+        }
+
+        #download-progress-bar {
+            width: 0;
+            height: 15px;
+            background-color: #a3daf3;
+            transition: width 0.4s;
+        }
+
+        #download-progress-text {
+            top: 0;
+            position: absolute;
+            width: 100%;
+            height: 20px;
+            line-height: 20px;
+            color: #000;
+        }
+
+        #no-tabs-message {
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            align-items: center;
+            height: 100%;
+            font-size: 20px;
+            color: #555;
+        }
+
+        #no-tabs-message.hidden {
+            display: none;
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            margin: 0 5px;
+        }
+
+        #back, #forward, #reload {
+            width: 30px;
+            color: rgba(0, 0, 0, .87);
+        }
+
+        #new-tab {
+            padding: 4px 6px;
+            border: 1px solid rgba(0, 0, 0, .87);
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            color: rgba(0, 0, 0, .87);
+            cursor: pointer;
+        }
+
+        button:hover {
+            border: 1px solid #a3daf3 !important;
+            background-color: #a3daf3 !important;
+            border-radius: 50px;
+            color: #f3f3f3 !important;
+            cursor: pointer;
+        }
+
     </style>
 </head>
 
 <body>
-    <div id="toolbar">
-        <button id="back">Back</button>
-        <button id="forward">Forward</button>
-        <input type="text" id="url" placeholder="Enter URL or search query">
-        <button id="go">Search</button>
-        <button id="new-tab">New Tab +</button>
-    </div>
     <div id="tabs"></div>
+    <div id="toolbar">
+        <button id="back" class="toolbar-btn"><i class="fa-solid fa-arrow-left"></i></i></button>
+        <button id="forward" class="toolbar-btn"><i class="fa-solid fa-arrow-right"></i></i></button>
+        <button id="reload" class="toolbar-btn"><i class="fa-solid fa-rotate-right"></i></i></button>
+        <input type="text" id="url" placeholder="Enter URL or search query">
+        <button id="new-tab" class="toolbar-btn">New Tab +</button>
+    </div>
+    <div id="loading-bar-container">
+        <div id="loading-bar"></div>
+    </div>
     <div id="content">
+        <div id="no-tabs-message">Welcome to Justin Browser! <br> Please click the New Tab + button to use this browser.</div>
         <div id="webview-container"></div>
+    </div>
+    <div id="download-progress">
+        <div id="download-progress-bar"></div>
+        <div id="download-progress-text"></div>
     </div>
     <div id="loading-notice">Downloading...</div>
     <script src="renderer.js"></script>
